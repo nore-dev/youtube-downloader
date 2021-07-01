@@ -1,0 +1,16 @@
+{
+  "name": "ytdljs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "noredev",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^8.1.1",
+    "miniget": "^4.2.1",
+    "minimist": "^1.2.5",
+    "ora": "^5.4.1"
+  },
+  "bin": {
+    "ytdljs": "index.js"
+  }
+}
