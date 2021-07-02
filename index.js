@@ -26,20 +26,14 @@ function downloadFromPrompt() {
 
         let adaptiveFormats = getPlayerResponse(info).streamingData.adaptiveFormats
 
-        let qualities = []
+        let qualities = getQualities(getPlayerResponse(info).streamingData.formats)
         
-        switch (answers.downloadType) {
-            case "onlyAudio":
-                qualities = getQualities(getTypeFormats(adaptiveFormats, "audio"), "audioQuality")
-                break
-            case "onlyVideo":
-                qualities = getQualities(getTypeFormats(adaptiveFormats, "video"))
-                break
-            default:
-                qualities = getQualities(getPlayerResponse(info).streamingData.formats)
-                break
-        }
-        
+        if (answers.downloadType == "onlyAudio")
+            qualities = getQualities(getTypeFormats(adaptiveFormats, "audio"), "audioQuality")
+
+        if (answers.downloadType == "onlyVideo")
+            qualities = getQualities(getTypeFormats(adaptiveFormats, "video"))
+    
         inquirer.prompt([
             {
                 type: "list",
