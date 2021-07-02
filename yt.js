@@ -26,13 +26,6 @@ async function getVideoInfo(url) {
     
     let id = getId(url)
     let spinner = ora("Getting info").start()
-
-    miniget(`http://gdata.youtube.com/feeds/api/videos/${id}`).text()
-    .catch(_ => {
-        spinner.fail("Video not found")
-        process.exit(1)
-    })
-
     let eurl = getEurl(id)
     let infoUrl = new URL(INFO_URL)
 
@@ -46,6 +39,10 @@ async function getVideoInfo(url) {
     let res = await miniget(infoUrl.href).text()
     let info = queryString.parse(res)
 
+    if (!getPlayerResponse(info).streamingData) {
+        spinner.fail("Video not found")
+        process.exit(1)
+    }
 
     info.id = id
 
@@ -78,7 +75,6 @@ async function download(info, filename = null, quality = null, downloadType = "n
     let extension = ".mp4"
     let playerResponse = getPlayerResponse(info)
 
-    console.log(playerResponse)
     let streamingData = playerResponse.streamingData
 
     let formats = streamingData.formats
