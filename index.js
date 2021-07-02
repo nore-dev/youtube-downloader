@@ -23,7 +23,7 @@ function downloadFromPrompt() {
     ]).then(async answers => {
 
         let info = await getVideoInfo(answers.url)
-        
+
         let adaptiveFormats = getPlayerResponse(info).streamingData.adaptiveFormats
 
         let qualities = []

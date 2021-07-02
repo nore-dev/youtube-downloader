@@ -23,20 +23,31 @@ function getEurl(id) {
 }
 
 async function getVideoInfo(url) {
-    let eurl = getEurl(getId(url))
+    
+    let id = getId(url)
+    let spinner = ora("Getting info").start()
+
+    miniget(`http://gdata.youtube.com/feeds/api/videos/${id}`).text()
+    .catch(_ => {
+        spinner.fail("Video not found")
+        process.exit(1)
+    })
+
+    let eurl = getEurl(id)
     let infoUrl = new URL(INFO_URL)
 
-    let spinner = ora("Getting info").start()
-    infoUrl.searchParams.set("video_id", getId(url))
+    infoUrl.searchParams.set("video_id", id)
     infoUrl.searchParams.set("eurl", eurl)
     infoUrl.searchParams.set("cver", "7.20210622.10.00")
-    infoUrl.searchParams.set("c", "TVHTML5")   
+    infoUrl.searchParams.set("c", "TVHTML5")
     infoUrl.searchParams.set("html5", "1")
 
 
     let res = await miniget(infoUrl.href).text()
     let info = queryString.parse(res)
-    info.id = getId(url)
+
+
+    info.id = id
 
     spinner.succeed("Info recevied!")
     return info
@@ -66,8 +77,10 @@ function getTypeFormats(formats, type) {
 async function download(info, filename = null, quality = null, downloadType = "normal") {
     let extension = ".mp4"
     let playerResponse = getPlayerResponse(info)
+
+    console.log(playerResponse)
     let streamingData = playerResponse.streamingData
-   
+
     let formats = streamingData.formats
     let adaptiveFormats = streamingData.adaptiveFormats
 
@@ -86,7 +99,7 @@ async function download(info, filename = null, quality = null, downloadType = "n
     if (downloadType == "onlyAudio") {
         qualitySelector = "audioQuality"
         extension = ".mp3"
-    } 
+    }
 
     if (!filename) filename = info.id
 
