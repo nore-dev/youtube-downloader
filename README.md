@@ -2,8 +2,8 @@
 
 Worst youtube downloader
 
-![screenshot1](ss1.png)
-![screenshot2](ss2.png)
+![screenshot1](https://i.imgur.com/MNSrqjL.png)
+![screenshot2](https://i.imgur.com/QAf8UFY.png)
 
 ### Install
 ```
