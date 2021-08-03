@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
-const { getVideoInfo, download, getQualities, getTypeFormats, getPlayerResponse } = require("./yt")
-const ora = require("ora")
+const { getVideoInfo, download, getQualities, getTypeFormats, getPlayerResponse, getId } = require("./yt")
 const inquirer = require("inquirer")
 
 let argv = require('minimist')(process.argv.slice(2));
-
 function downloadFromPrompt() {
     inquirer.prompt([
         {
@@ -18,7 +16,7 @@ function downloadFromPrompt() {
             message: "Download Type",
             name: "downloadType",
             default: "normal",
-            choices: ["normal", "onlyVideo", "onlyAudio"]
+            choices: ["normal", "only-video", "only-audio"]
         }
     ]).then(async answers => {
 
@@ -28,10 +26,10 @@ function downloadFromPrompt() {
 
         let qualities = getQualities(getPlayerResponse(info).streamingData.formats)
         
-        if (answers.downloadType == "onlyAudio")
+        if (answers.downloadType == "only-audio")
             qualities = getQualities(getTypeFormats(adaptiveFormats, "audio"), "audioQuality")
 
-        if (answers.downloadType == "onlyVideo")
+        if (answers.downloadType == "only-video")
             qualities = getQualities(getTypeFormats(adaptiveFormats, "video"))
     
         inquirer.prompt([
@@ -45,7 +43,7 @@ function downloadFromPrompt() {
                 type: "input",
                 message: "Output file",
                 name: "filename",
-                default: null
+                default: getId(answers.url)
             },
         ]).then(q => {
             download(info, q.filename, q.quality, answers.downloadType)
@@ -55,10 +53,8 @@ function downloadFromPrompt() {
 
 async function downloadFromArgs() {
     let downloadType = argv.d || argv["download-type"] || "normal"
-    let url = argv._[0]
-    let info = await getVideoInfo(url)
+    let info = await getVideoInfo(argv._[0])
     download(info, argv.o || argv.output, argv.quality || argv.q, downloadType)
-
 }
 
 // ._.

@@ -6,27 +6,28 @@ const fs = require("fs")
 const INFO_URL = "https://www.youtube.com/get_video_info"
 
 function getId(url) {
-    // :(
-    if (url.startsWith("https://www.youtube.com/watch")) {
-        watchUrl = new URL(url)
-        return watchUrl.searchParams.get("v")
-    } else if (url.length == 11) {
-        return url
-    } else {
-        console.log("Not a url or id")
-        process.exit(1)
-    }
-}
+    try {
+        let uwu = new URL(url)
+        let sj = uwu.pathname.split("/")
 
-function getEurl(id) {
-    return `https://youtube.googleapis.com/v/${id}`
+        if (uwu.hostname.endsWith("youtube.com") || uwu.hostname.endsWith("youtu.be")) {
+            let v = uwu.searchParams.get("v")
+            if (v) return v
+            else return sj[sj.length-1]
+        }
+        else {
+            console.log("Please enter a valid url")
+            process.exit(1)
+        }
+    } catch (_) { return url }
+
 }
 
 async function getVideoInfo(url) {
     
-    let id = getId(url)
+    let id = getId(url.trim())
     let spinner = ora("Getting info").start()
-    let eurl = getEurl(id)
+    let eurl = `https://youtube.googleapis.com/v/${id}`
     let infoUrl = new URL(INFO_URL)
 
     infoUrl.searchParams.set("video_id", id)
@@ -35,8 +36,8 @@ async function getVideoInfo(url) {
     infoUrl.searchParams.set("c", "TVHTML5")
     infoUrl.searchParams.set("html5", "1")
 
-
     let res = await miniget(infoUrl.href).text()
+
     let info = queryString.parse(res)
 
     if (!getPlayerResponse(info).streamingData) {
@@ -55,6 +56,12 @@ function getTypeOfFormat(format) {
 }
 
 function getPlayerResponse(info) {
+    
+    if (info.status == "fail") {
+        console.log("\n" + info.reason)
+        process.exit(1)
+    }
+    
     return JSON.parse(info.player_response)
 }
 
@@ -66,12 +73,13 @@ function getFormat(formats, quality, qualitySelector) {
     return formats.find(format => format[qualitySelector] == quality )
 }
 
-// uh
 function getTypeFormats(formats, type) {
     return formats.filter(format => getTypeOfFormat(format) == type)
 }
 
-async function download(info, filename = null, quality = null, downloadType = "normal") {
+function download(info, filename = null, quality = null, downloadType = "normal") {
+
+    
     let extension = ".mp4"
     let playerResponse = getPlayerResponse(info)
 
@@ -88,16 +96,13 @@ async function download(info, filename = null, quality = null, downloadType = "n
 
     let format = null
 
-    if (downloadType == "onlyVideo" || downloadType == "onlyAudio") {
+    if (downloadType == "only-video" || downloadType == "only-audio")
         currFormats = adaptiveFormats
-    }
 
-    if (downloadType == "onlyAudio") {
+    if (downloadType == "only-audio") {
         qualitySelector = "audioQuality"
         extension = ".mp3"
     }
-
-    if (!filename) filename = info.id
 
     if (!quality) quality = currFormats[currFormats.length-1][qualitySelector]
 
@@ -109,16 +114,18 @@ async function download(info, filename = null, quality = null, downloadType = "n
     }
 
     if (format.signatureCipher || playerResponse.playabilityStatus.status != "OK") {
-        // TODO: Signature Cipher
-        spinner.fail("Sorry :(")
+        
+        spinner.fail("yutup ne yaptin yutub :(")
         return
     }
 
-    await miniget(format.url).pipe(fs.createWriteStream(filename + extension)
+    miniget(format.url).pipe(fs.createWriteStream(filename + extension)
     .on("finish", () => {
         spinner.succeed("Downloaded!")
+    }).on("error", () => {
+        spinner.fail("Sorry :(")   
     }))
 
 }
 
-module.exports = {getVideoInfo, getId, download, getQualities, getFormat, getTypeFormats, getPlayerResponse}
+module.exports = {getVideoInfo, getId, download, getQualities, getTypeFormats, getPlayerResponse}

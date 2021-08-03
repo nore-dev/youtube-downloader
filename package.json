@@ -1,6 +1,6 @@
 {
   "name": "ytdljs",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "main": "index.js",
   "author": "noredev",
   "license": "MIT",
@@ -12,5 +12,13 @@
   },
   "bin": {
     "ytdljs": "index.js"
-  }
+  },
+  "keywords": [
+    "cli"
+  ],
+  "repository": {
+    "url": "https://github.com/nore-dev/youtube-downloader.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/nore-dev/youtube-downloader#readme"
 }

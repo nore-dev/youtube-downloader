@@ -14,7 +14,10 @@ npm install -g ytdljs
 ```
 ytdljs // no args
 
-ytdljs https://www.youtube.com/watch?v=OWzmmCBTJZ0 -q 360p -o test
+ytdljs https://www.youtube.com/watch?v=fC7oUOUEEi4 -q 360p -o test
 
-ytdljs OWzmmCBTJZ0  -o test2 -d onlyVideo
+ytdljs https://www.youtube.com/watch?v=fC7oUOUEEi4 -q 720p -o test
+
+ytdljs fC7oUOUEEi4  -o test2 -d only-video
+
 ```
